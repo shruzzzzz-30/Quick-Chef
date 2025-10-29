@@ -6,6 +6,7 @@ function go(path) {
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // ✅ Mobile toggle state
   const current = window.location.hash.slice(1) || "/";
 
   useEffect(() => {
@@ -65,7 +66,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Toggle */}
         <div className="sm:hidden">
           <button
             className={`p-2 rounded-lg transition-all duration-200 ${
@@ -73,10 +74,35 @@ export default function Navbar() {
                 ? "bg-orange-100 text-orange-700 hover:bg-orange-200"
                 : "bg-white/20 text-white hover:bg-white/30"
             }`}
-            onClick={() => alert("Mobile menu toggle coming soon 🍔")}
+            onClick={() => setIsOpen(!isOpen)}
           >
-            ☰
+            {isOpen ? "✖" : "☰"}
           </button>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      <div
+        className={`sm:hidden transition-all duration-500 overflow-hidden ${
+          isOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+        } ${scrolled ? "bg-white/90 text-orange-700" : "bg-orange-500 text-white"}`}
+      >
+        <div className="flex flex-col items-center gap-4 py-4">
+          {[
+            { name: "Home", path: "/" },
+            { name: "Favorites", path: "/favorites" },
+          ].map((link) => (
+            <button
+              key={link.path}
+              onClick={() => {
+                go(link.path);
+                setIsOpen(false); // ✅ close menu when link clicked
+              }}
+              className="text-lg font-semibold"
+            >
+              {link.name}
+            </button>
+          ))}
         </div>
       </div>
     </nav>
