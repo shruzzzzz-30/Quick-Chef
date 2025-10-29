@@ -30,7 +30,7 @@ Deployment	Vercel
 Follow these steps to run QuickChef locally 👇
 
 # 1️⃣ Clone the repository
-git clone https://github.com/<your-username>/quickchef.git
+git clone https://github.com/shruzzzzz-30/quickchef.git
 
 # 2️⃣ Navigate to the folder
 cd quickchef
@@ -88,6 +88,7 @@ Save your favorite dishes for later in the Favorites section.
 🏠 Home Page
 
 Users can search recipes, explore by mood, or apply filters.
+
 
 
 🍲 Recipe Details Page
