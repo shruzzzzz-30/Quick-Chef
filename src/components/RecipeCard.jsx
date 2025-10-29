@@ -1,58 +1,48 @@
-import React from "react";
-import { useFavorites } from "../context/FavoritesContext";
+import React, { useEffect, useState } from "react";
+import { filterByIngredients, filterByCategory } from "../services/api";
+import RecipeCard from "../components/RecipeCard";
 
-export default function RecipeCard({ meal, onOpen }) {
-  const { favorites, addFavorite, removeFavorite } = useFavorites();
-  const isFav = favorites.some((f) => f.idMeal === meal.idMeal);
+export default function RecipeList() {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch recipes (adjust this part according to your setup)
+  useEffect(() => {
+    async function fetchData() {
+      const params = new URLSearchParams(window.location.hash.split("?")[1]);
+      const mood = params.get("mood");
+      const ingredients = params.get("ingredients");
+
+      let result;
+      if (mood) {
+        result = await filterByCategory(mood);
+      } else if (ingredients) {
+        result = await filterByIngredients(ingredients);
+      }
+      setRecipes(result?.meals || []);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  // 🔥 THIS HANDLES NAVIGATION TO DETAIL PAGE
+  const openRecipe = (id) => {
+    window.location.hash = `/recipe/${id}`;
+  };
+
+  if (loading) return <p className="text-center mt-10">Loading recipes...</p>;
 
   return (
-    <div
-      className="bg-white rounded-3xl shadow-md hover:shadow-2xl overflow-hidden border border-orange-100 
-                 transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02]"
-    >
-      {/* Recipe Image */}
-      <div
-        className="relative cursor-pointer group"
-        onClick={() => onOpen(meal.idMeal)}
-      >
-        <img
-          src={meal.strMealThumb}
-          alt={meal.strMeal}
-          className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        {/* Favorite Icon */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            isFav ? removeFavorite(meal.idMeal) : addFavorite(meal);
-          }}
-          className={`absolute top-3 right-3 text-2xl transition-all duration-300 transform 
-            ${
-              isFav
-                ? "text-red-500 scale-110"
-                : "text-white hover:text-red-400 hover:scale-125"
-            } drop-shadow-lg`}
-        >
-          {isFav ? "❤️" : "🤍"}
-        </button>
-      </div>
-
-      {/* Recipe Info */}
-      <div className="p-5 flex flex-col justify-between min-h-[130px] bg-gradient-to-b from-white to-orange-50">
-        <h3 className="font-semibold text-lg text-gray-800 mb-3 line-clamp-2 group-hover:text-orange-600 transition-colors duration-300">
-          {meal.strMeal}
-        </h3>
-
-        <div className="flex items-center justify-between mt-auto">
-          <button
-            onClick={() => onOpen(meal.idMeal)}
-            className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm px-5 py-2 
-                       rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300 font-medium"
-          >
-            View Recipe 🍴
-          </button>
-        </div>
-      </div>
+    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {recipes.length === 0 ? (
+        <p className="col-span-full text-center text-gray-500 text-lg">
+          No recipes found 🍳
+        </p>
+      ) : (
+        recipes.map((meal) => (
+          <RecipeCard key={meal.idMeal} meal={meal} onOpen={openRecipe} />
+        ))
+      )}
     </div>
   );
 }
